@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Solucao from "../Models/Solucao";
-import { getRandomInt } from "./util";
+import { getRandomInt } from "./Util";
 
 
 // Frescura do react pra poder acessar isso de pontos especificos da aplicação sem precisar passar por vários componentes

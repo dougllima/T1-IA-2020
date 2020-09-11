@@ -1,4 +1,4 @@
-import { getRandomInt } from "../logic/util";
+import { getRandomInt } from "../logic/Util";
 
 export default class Solucao {
   static COMANDOS_POSSIVEIS = ["U", "D", "L", "R"];
