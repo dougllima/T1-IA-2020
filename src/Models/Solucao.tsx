@@ -4,7 +4,7 @@ export default class Solucao {
   static COMANDOS = ["U", "D", "L", "R"];
 
   comandos: string[];
-  aptidao?: number;
+  aptidao: number = Infinity;
 
   constructor(tamanhoSolucao: number = 120) {
     //Inicializa uma solução com valores aleatórios.
