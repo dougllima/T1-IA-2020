@@ -47,7 +47,7 @@ export default class Labirinto {
     if (x >= this.labirinto.length || y >= this.labirinto[x].length)
       return false;
     // Verifica se ta tentando andar por uma parede
-    if (this.labirinto[x][y] == "1") return false;
+    if (this.labirinto[x][y] === "1") return false;
 
     return true;
   };
@@ -55,7 +55,7 @@ export default class Labirinto {
   posicaoInicial = (): number[] => {
     for (let i = 0; i < this.labirinto.length; i++) {
       for (let j = 0; j < this.labirinto[i].length; j++) {
-        if (this.labirinto[i][j] == Labirinto.ESPACOS.inicio) return [i, j];
+        if (this.labirinto[i][j] === Labirinto.ESPACOS.inicio) return [i, j];
       }
     }
 
@@ -66,7 +66,7 @@ export default class Labirinto {
   posicaoFinal = (): number[] => {
     for (let i = 0; i < this.labirinto.length; i++) {
       for (let j = 0; j < this.labirinto[i].length; j++) {
-        if (this.labirinto[i][j] == Labirinto.ESPACOS.fim) return [i, j];
+        if (this.labirinto[i][j] === Labirinto.ESPACOS.fim) return [i, j];
       }
     }
 

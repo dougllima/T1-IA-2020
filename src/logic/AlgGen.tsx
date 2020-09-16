@@ -4,30 +4,48 @@ import Solucao from "../Models/Solucao";
 import { getRandomInt } from "./Util";
 import labTeste from "../tests/labTeste1.json";
 
-// Frescura do react pra poder acessar isso de pontos especificos da aplicação sem precisar passar por vários componentes
-const { Provider, Consumer } = React.createContext({});
-
 type AlgGenConfig = {
   tamSolucao: number;
-  maxGeracoes: number;
-  taxaMutacao: number;
+  tamGeracoes: number;
   tamPopulacao: number;
+
+  taxaMutacao: number;
+  tamMutacoes: number;
+  qntMutacoes: number;
+
   pontosDeCorte: number;
 
   posicaoFinal: number[];
   posicaoInicial: number[];
 };
 
+type ContextValue = {
+  run?;
+  config?: AlgGenConfig;
+  geracoes?;
+  populacao?: Solucao[];
+  labirinto?: Labirinto;
+
+  setConfig?;
+  setLabirinto?;
+};
+
 const DEFAULT_CONFIG: AlgGenConfig = {
   tamSolucao: 120,
-  maxGeracoes: 50,
-  taxaMutacao: 5,
-  tamPopulacao: 20,
+  tamMutacoes: 20,
+  qntMutacoes: 5,
+  tamGeracoes: 50,
+  tamPopulacao: 50,
+
+  taxaMutacao: 2,
   pontosDeCorte: 1,
 
   posicaoFinal: [11, 11],
   posicaoInicial: [0, 0],
 };
+
+// Frescura do react pra poder acessar isso de pontos especificos da aplicação sem precisar passar por vários componentes
+const AlgGenContext = React.createContext<ContextValue>({});
 
 const AlgGenProvider = (props) => {
   const [config, setConfig] = useState<AlgGenConfig>(DEFAULT_CONFIG);
@@ -35,11 +53,10 @@ const AlgGenProvider = (props) => {
     new Labirinto(labTeste)
   );
 
-  const [geracoes, setGeracoes] = useState(new Array(config.maxGeracoes));
-  const [populacao, setPopulacao] = useState<Solucao[]>([]);
-  const [populacaoIntermediaria, setPopulacaoIntermediaria] = useState<
-    Solucao[]
-  >([]);
+  let geracaoAtual = 0;
+  let geracoes = new Array(config.tamGeracoes);
+  let populacao = new Array(config.tamPopulacao);
+  let populacaoIntermediaria = new Array(config.tamPopulacao);
 
   // Se mudar o labirinto, já procura quais as posições inicial e final (pra não ter que percorrer ele toda vez que for calcular aptidão ou verificar se terminou)
   useEffect(() => {
@@ -58,45 +75,55 @@ const AlgGenProvider = (props) => {
    * @memberof AlgGenProvider
    */
   const init = () => {
-    setPopulacao(
-      new Array(config.tamPopulacao).fill(new Solucao(config.tamSolucao))
-    );
-    setGeracoes(new Array(config.maxGeracoes));
-    setPopulacaoIntermediaria(new Array(config.tamPopulacao));
+    for (let i = 0; i < populacao.length; i++) {
+      populacao[i] = new Solucao(config.tamSolucao, true);
+    }
+    geracoes = new Array(config.tamGeracoes);
+    geracaoAtual = 0;
   };
 
   const run = () => {
-    let geracaoAtual = 1;
     init();
 
+    console.count("Iniciando gerações");
     do {
       // Limpa população intermediaria.
-      setPopulacaoIntermediaria(new Array(config.tamPopulacao));
+      //console.count("Limpa população intermediaria.");
+      for (let j = 0; j < config.tamPopulacao; j++) {
+        populacaoIntermediaria[j] = new Solucao(config.tamSolucao);
+      }
 
       // Calcula a aptidão das soluções geradas.
+      //console.count("Calcula a aptidão das soluções geradas.");
       atribuiAptidao();
 
+      //Salva a população atual para exibição depois.
+      geracoes[geracaoAtual] = [...populacao];
+
       // Coloca melhor solução na proxima geração.
+      //console.count("Coloca melhor solução na proxima geração.");
       copiaMelhorSolucao();
 
       // Realiza o cruzamento
+      //console.count("Realiza o Cruzamento");
       crossOver();
 
       // Realiza a mutação
-      if (geracaoAtual % config.taxaMutacao == 0) {
+      //console.count("Realiza a Mutação")
+      if (geracaoAtual % config.taxaMutacao === 0) {
         mutacao();
       }
 
       // Passa a população intermediaria para a população atual.
-      setPopulacao([...populacaoIntermediaria]);
+      populacao = [...populacaoIntermediaria];
 
-      // Salva geração para exibição depois.
-      setGeracoes((geracoesAtual) => {
-        geracoesAtual[geracaoAtual] = populacao;
-        return geracoesAtual;
-      });
-
-    } while (geracaoAtual <= config.maxGeracoes);
+      geracaoAtual = geracaoAtual + 1;
+    } while (geracaoAtual < config.tamGeracoes);
+    console.log(
+      geracoes.map(
+        (value: Solucao[], index) => value.map((e) => e.aptidao) + " - " + index
+      )
+    );
   };
 
   /**
@@ -112,7 +139,11 @@ const AlgGenProvider = (props) => {
 
     for (let i = 0; i < solucao.comandos.length; i++) {
       posicaoAtual = labirinto.caminhar(posicaoAtual, solucao.comandos[i]);
-      if (labirinto[posicaoAtual[0]][posicaoAtual[1]] == Labirinto.ESPACOS.fim)
+      if (!labirinto.labirinto[posicaoAtual[0]]) debugger;
+      if (
+        labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
+        Labirinto.ESPACOS.fim
+      )
         break;
     }
 
@@ -128,10 +159,7 @@ const AlgGenProvider = (props) => {
    *
    */
   const atribuiAptidao = () => {
-    setPopulacao((populacaoAtual) => {
-      // Percorre todas soluções e calcula a aptidão de cada uma.
-      return populacaoAtual.map((solucao) => calculaAptidao(solucao));
-    });
+    populacao.map((solucao) => calculaAptidao(solucao));
   };
 
   /**
@@ -154,11 +182,7 @@ const AlgGenProvider = (props) => {
    *
    */
   const copiaMelhorSolucao = () => {
-    setPopulacaoIntermediaria((populacaoAtual) => {
-      populacaoAtual[0] = populacao[identificaMelhorSolucao()];
-
-      return populacaoAtual;
-    });
+    populacaoIntermediaria[0] = { ...populacao[identificaMelhorSolucao()] };
   };
 
   /**
@@ -167,8 +191,8 @@ const AlgGenProvider = (props) => {
    * @return {*} {number} Indice da solução escolhida
    */
   const torneio = (): number => {
-    const linhaUm = getRandomInt(0, config.tamPopulacao);
-    const linhaDois = getRandomInt(0, config.tamPopulacao);
+    const linhaUm = getRandomInt(0, config.tamPopulacao - 1);
+    const linhaDois = getRandomInt(0, config.tamPopulacao - 1);
 
     if (populacao[linhaUm].aptidao < populacao[linhaDois].aptidao) {
       return linhaUm;
@@ -185,24 +209,22 @@ const AlgGenProvider = (props) => {
       const idxMae = torneio();
       const idxPai = torneio();
 
-      setPopulacaoIntermediaria((populacaoAtual) => {
-        const tamanhoCorte = Math.floor(
-          config.tamSolucao / (config.pontosDeCorte + 1)
-        );
+      const tamanhoCorte = Math.floor(
+        config.tamSolucao / (config.pontosDeCorte + 1)
+      );
 
-        for (let j = 0; j < tamanhoCorte; j++) {
-          for (let k = 0; k < config.pontosDeCorte; k++) {
-            const posicao = j + tamanhoCorte * k;
-            if (config.pontosDeCorte % 2 == 0) {
-              populacaoAtual[i][posicao] = populacao[idxMae][posicao];
-            } else {
-              populacaoAtual[i][posicao] = populacao[idxPai][posicao];
-            }
+      for (let j = 0; j < tamanhoCorte; j++) {
+        for (let k = 0; k <= config.pontosDeCorte; k++) {
+          const posicao = j + tamanhoCorte * k;
+          if (k % 2 === 0) {
+            populacaoIntermediaria[i].comandos[posicao] =
+              populacao[idxMae].comandos[posicao];
+          } else {
+            populacaoIntermediaria[i].comandos[posicao] =
+              populacao[idxPai].comandos[posicao];
           }
         }
-
-        return populacaoAtual;
-      });
+      }
     }
   };
 
@@ -212,27 +234,27 @@ const AlgGenProvider = (props) => {
    * @memberof AlgGenProvider
    */
   const mutacao = () => {
-    setPopulacaoIntermediaria((populacaoAtual) => {
+    for (let j = 0; j < config.qntMutacoes; j++) {
       const idxSolucao = getRandomInt(1, config.tamPopulacao - 1);
-      const idxMutacao = getRandomInt(0, config.tamSolucao);
 
-      const comandoAtual = populacaoAtual[idxSolucao].comandos[idxMutacao];
-      let comandoNovo = "";
+      for (let i = 0; i < config.tamMutacoes; i++) {
+        const idxMutacao = getRandomInt(0, config.tamSolucao);
 
-      do {
-        comandoNovo = Solucao.COMANDOS[getRandomInt(0, 3)];
-      } while (comandoAtual == comandoNovo);
+        const comandoAtual =
+          populacaoIntermediaria[idxSolucao].comandos[idxMutacao];
+        let comandoNovo = "";
 
-      populacaoAtual[idxSolucao].comandos[idxMutacao] = comandoNovo;
+        do {
+          comandoNovo = Solucao.COMANDOS[getRandomInt(0, 3)];
+        } while (comandoAtual === comandoNovo);
 
-      // Calcula nova aptidão com a solução mutada.
-      populacaoAtual[idxSolucao] = calculaAptidao(populacaoAtual[idxSolucao]);
-      return populacaoAtual;
-    });
+        populacaoIntermediaria[idxSolucao].comandos[idxMutacao] = comandoNovo;
+      }
+    }
   };
 
   return (
-    <Provider
+    <AlgGenContext.Provider
       value={{
         run,
         config,
@@ -244,8 +266,8 @@ const AlgGenProvider = (props) => {
       }}
     >
       {props.children}
-    </Provider>
+    </AlgGenContext.Provider>
   );
 };
 
-export { Consumer as AlgGenConsumer, AlgGenProvider };
+export { AlgGenProvider, AlgGenContext };

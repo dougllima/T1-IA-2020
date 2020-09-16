@@ -6,10 +6,12 @@ export default class Solucao {
   comandos: string[];
   aptidao: number = Infinity;
 
-  constructor(tamanhoSolucao: number = 120) {
+  constructor(tamanhoSolucao: number = 120, randomizar: Boolean = false) {
     //Inicializa uma solução com valores aleatórios.
-    this.comandos = new Array(tamanhoSolucao).fill(
-      Solucao.COMANDOS[getRandomInt(0, 3)]
-    );
+    this.comandos = new Array(tamanhoSolucao);
+    if (randomizar)
+      for (let i = 0; i < this.comandos.length; i++) {
+        this.comandos[i] = Solucao.COMANDOS[getRandomInt(0, 3)];
+      }
   }
 }
