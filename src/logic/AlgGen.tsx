@@ -3,34 +3,20 @@ import Labirinto from "../Models/Labirinto";
 import Solucao from "../Models/Solucao";
 import { getRandomInt } from "./Util";
 import labTeste from "../tests/labTeste1.json";
-
-type AlgGenConfig = {
-  tamSolucao: number;
-  tamGeracoes: number;
-  tamPopulacao: number;
-
-  taxaMutacao: number;
-  tamMutacoes: number;
-  qntMutacoes: number;
-
-  pontosDeCorte: number;
-
-  posicaoFinal: number[];
-  posicaoInicial: number[];
-};
+import { GenConfig } from "../Models/Configs";
 
 type ContextValue = {
   run?;
-  config?: AlgGenConfig;
-  geracoes?;
+  config: GenConfig;
+  running?: Boolean;
+  resultado?;
   populacao?: Solucao[];
   labirinto?: Labirinto;
-
   setConfig?;
   setLabirinto?;
 };
 
-const DEFAULT_CONFIG: AlgGenConfig = {
+const DEFAULT_CONFIG: GenConfig = {
   tamSolucao: 120,
   tamMutacoes: 20,
   qntMutacoes: 5,
@@ -45,14 +31,18 @@ const DEFAULT_CONFIG: AlgGenConfig = {
 };
 
 // Frescura do react pra poder acessar isso de pontos especificos da aplicação sem precisar passar por vários componentes
-const AlgGenContext = React.createContext<ContextValue>({});
+const AlgGenContext = React.createContext<ContextValue>({
+  config: DEFAULT_CONFIG,
+});
 
 const AlgGenProvider = (props) => {
-  const [config, setConfig] = useState<AlgGenConfig>(DEFAULT_CONFIG);
+  const [config, setConfig] = useState<GenConfig>(DEFAULT_CONFIG);
   const [labirinto, setLabirinto] = useState<Labirinto>(
     new Labirinto(labTeste)
   );
+  const [resultado, setResultado] = useState<any[]>([]);
 
+  let running = false;
   let geracaoAtual = 0;
   let geracoes = new Array(config.tamGeracoes);
   let populacao = new Array(config.tamPopulacao);
@@ -83,47 +73,53 @@ const AlgGenProvider = (props) => {
   };
 
   const run = () => {
-    init();
+    if (!running) {
+      running = true;
+      init();
 
-    console.count("Iniciando gerações");
-    do {
-      // Limpa população intermediaria.
-      //console.count("Limpa população intermediaria.");
-      for (let j = 0; j < config.tamPopulacao; j++) {
-        populacaoIntermediaria[j] = new Solucao(config.tamSolucao);
-      }
+      console.count("Iniciando gerações");
+      do {
+        // Limpa população intermediaria.
+        //console.count("Limpa população intermediaria.");
+        for (let j = 0; j < config.tamPopulacao; j++) {
+          populacaoIntermediaria[j] = new Solucao(config.tamSolucao);
+        }
 
-      // Calcula a aptidão das soluções geradas.
-      //console.count("Calcula a aptidão das soluções geradas.");
-      atribuiAptidao();
+        // Calcula a aptidão das soluções geradas.
+        //console.count("Calcula a aptidão das soluções geradas.");
+        atribuiAptidao();
 
-      //Salva a população atual para exibição depois.
-      geracoes[geracaoAtual] = [...populacao];
+        //Salva a população atual para exibição depois.
+        geracoes[geracaoAtual] = [...populacao];
 
-      // Coloca melhor solução na proxima geração.
-      //console.count("Coloca melhor solução na proxima geração.");
-      copiaMelhorSolucao();
+        // Coloca melhor solução na proxima geração.
+        //console.count("Coloca melhor solução na proxima geração.");
+        copiaMelhorSolucao();
 
-      // Realiza o cruzamento
-      //console.count("Realiza o Cruzamento");
-      crossOver();
+        // Realiza o cruzamento
+        //console.count("Realiza o Cruzamento");
+        crossOver();
 
-      // Realiza a mutação
-      //console.count("Realiza a Mutação")
-      if (geracaoAtual % config.taxaMutacao === 0) {
-        mutacao();
-      }
+        // Realiza a mutação
+        //console.count("Realiza a Mutação")
+        if (geracaoAtual % config.taxaMutacao === 0) {
+          mutacao();
+        }
 
-      // Passa a população intermediaria para a população atual.
-      populacao = [...populacaoIntermediaria];
+        // Passa a população intermediaria para a população atual.
+        populacao = [...populacaoIntermediaria];
 
-      geracaoAtual = geracaoAtual + 1;
-    } while (geracaoAtual < config.tamGeracoes);
-    console.log(
-      geracoes.map(
-        (value: Solucao[], index) => value.map((e) => e.aptidao) + " - " + index
-      )
-    );
+        geracaoAtual = geracaoAtual + 1;
+      } while (geracaoAtual < config.tamGeracoes);
+      setResultado((res) => geracoes);
+      running = false;
+      console.log(
+        geracoes.map(
+          (value: Solucao[], index) =>
+            value.map((e) => e.aptidao) + " - " + index
+        )
+      );
+    }
   };
 
   /**
@@ -258,7 +254,7 @@ const AlgGenProvider = (props) => {
       value={{
         run,
         config,
-        geracoes,
+        resultado,
         setConfig,
         populacao,
         setLabirinto,
