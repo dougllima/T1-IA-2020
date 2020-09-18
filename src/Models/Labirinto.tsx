@@ -4,7 +4,7 @@ export default class Labirinto {
     fim: "S",
 
     parede: "1",
-    piso: "0",
+    piso: "0"
   };
 
   labirinto: string[][] = [];
