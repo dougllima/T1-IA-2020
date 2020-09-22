@@ -7,8 +7,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import React, { useContext, useState } from "react";
-import { AlgGenContext } from "../logic/AlgGen";
-import { GenConfig } from "../Models/Configs";
+import { GeneticoContext } from "../logic/GeneticoContext";
+import { GeneticoConfig } from "../Models/Configs";
 
 const useStyle = makeStyles((theme) => ({
   root: {
@@ -26,11 +26,11 @@ const useStyle = makeStyles((theme) => ({
 export default function ConfigGen() {
   const classes = useStyle();
 
-  const { config, setConfig, running, run } = useContext(AlgGenContext);
-  const [configAtual, setConfigAtual] = useState<GenConfig>(config);
+  const { config, setConfig, running, run } = useContext(GeneticoContext);
+  const [configAtual, setConfigAtual] = useState<GeneticoConfig>(config);
 
   const salvarConfigs = () => {
-    setConfig((state: GenConfig) => {
+    setConfig((state: GeneticoConfig) => {
       return { ...state, ...configAtual };
     });
   };

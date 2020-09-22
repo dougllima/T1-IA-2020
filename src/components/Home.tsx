@@ -1,7 +1,7 @@
 import { Container, Grid, makeStyles, Paper } from "@material-ui/core";
 import React, { useContext } from "react";
-import { AlgGenContext } from "../logic/AlgGen";
-import ConfigGen from "./ConfigGen";
+import { GeneticoContext } from "../logic/GeneticoContext";
+import ConfigGen from "./ConfigGenetico";
 import Matriz from "./Matriz";
 import SolucoesGen from "./SolucoesGen";
 
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home() {
   const classes = useStyles();
-  const { labirinto } = useContext(AlgGenContext);
+  const { labirinto } = useContext(GeneticoContext);
 
   return (
     <main className={classes.content}>

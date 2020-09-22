@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@material-ui/core";
 import React, { useContext, useState } from "react";
-import { AlgGenContext } from "../logic/AlgGen";
+import { GeneticoContext } from "../logic/GeneticoContext";
 import Solucao from "../Models/Solucao";
 
 const useStyle = makeStyles((theme) => ({
@@ -23,7 +23,7 @@ const useStyle = makeStyles((theme) => ({
 
 export default function SolucoesGen() {
   const classes = useStyle();
-  const { resultado, config } = useContext(AlgGenContext);
+  const { resultado, config } = useContext(GeneticoContext);
   const [idxGeracao, setidxGeracao] = useState(config.tamGeracoes);
 
   const handleSlider = (event, number) => {

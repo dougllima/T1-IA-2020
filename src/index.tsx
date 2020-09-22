@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Home from "./components/Home";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import { AlgGenProvider } from "./logic/AlgGen";
+import { GeneticoProvider } from "./logic/GeneticoContext";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 
 const theme = createMuiTheme({
@@ -15,9 +15,9 @@ ReactDOM.render(
   <React.StrictMode>
     <CssBaseline />
     <ThemeProvider theme={theme}>
-      <AlgGenProvider>
+      <GeneticoProvider>
         <Home />
-      </AlgGenProvider>
+      </GeneticoProvider>
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById("root")

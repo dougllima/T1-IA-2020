@@ -3,11 +3,11 @@ import Labirinto from "../Models/Labirinto";
 import Solucao from "../Models/Solucao";
 import { getRandomInt } from "./Util";
 import labTeste from "../tests/labTeste1.json";
-import { GenConfig } from "../Models/Configs";
+import { GeneticoConfig } from "../Models/Configs";
 
 type ContextValue = {
   run?;
-  config: GenConfig;
+  config: GeneticoConfig;
   running?: Boolean;
   resultado?;
   populacao?: Solucao[];
@@ -16,7 +16,7 @@ type ContextValue = {
   setLabirinto?;
 };
 
-const DEFAULT_CONFIG: GenConfig = {
+const DEFAULT_CONFIG: GeneticoConfig = {
   tamSolucao: 120,
   tamMutacoes: 20,
   qntMutacoes: 5,
@@ -31,12 +31,12 @@ const DEFAULT_CONFIG: GenConfig = {
 };
 
 // Frescura do react pra poder acessar isso de pontos especificos da aplicação sem precisar passar por vários componentes
-const AlgGenContext = React.createContext<ContextValue>({
+const GeneticoContext = React.createContext<ContextValue>({
   config: DEFAULT_CONFIG,
 });
 
-const AlgGenProvider = (props) => {
-  const [config, setConfig] = useState<GenConfig>(DEFAULT_CONFIG);
+const GeneticoProvider = (props) => {
+  const [config, setConfig] = useState<GeneticoConfig>(DEFAULT_CONFIG);
   const [labirinto, setLabirinto] = useState<Labirinto>(
     new Labirinto(labTeste)
   );
@@ -250,7 +250,7 @@ const AlgGenProvider = (props) => {
   };
 
   return (
-    <AlgGenContext.Provider
+    <GeneticoContext.Provider
       value={{
         run,
         config,
@@ -262,8 +262,8 @@ const AlgGenProvider = (props) => {
       }}
     >
       {props.children}
-    </AlgGenContext.Provider>
+    </GeneticoContext.Provider>
   );
 };
 
-export { AlgGenProvider, AlgGenContext };
+export { GeneticoProvider, GeneticoContext };

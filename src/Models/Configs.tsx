@@ -1,4 +1,4 @@
-export type GenConfig = {
+export type GeneticoConfig = {
   tamSolucao: number;
   tamGeracoes: number;
   tamPopulacao: number;
