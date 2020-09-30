@@ -18,12 +18,14 @@ type ContextValue = {
 
 const DEFAULT_CONFIG: GeneticoConfig = {
   tamSolucao: 120,
-  tamMutacoes: 20,
-  qntMutacoes: 5,
   tamGeracoes: 50,
   tamPopulacao: 50,
-
+  
   taxaMutacao: 2,
+  qntMutacoes: 5,
+  tamMutacoes: 20,
+
+  funcAptidao: 0,
   pontosDeCorte: 1,
 
   posicaoFinal: [11, 11],
@@ -123,7 +125,6 @@ const GeneticoProvider = (props) => {
   };
 
   /**
-   * Forma escolhida de calcular a aptidão:
    *  - Movimentos "impossiveis" são ignorados;
    *  - Valor da aptidão é definido pela distancia até a saida.
    *  - Como não busca a melhor solução, vou ignorar a quantidade de movimentos até sair.
@@ -135,7 +136,39 @@ const GeneticoProvider = (props) => {
 
     for (let i = 0; i < solucao.comandos.length; i++) {
       posicaoAtual = labirinto.caminhar(posicaoAtual, solucao.comandos[i]);
-      if (!labirinto.labirinto[posicaoAtual[0]]) debugger;
+      if (
+        labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
+        Labirinto.ESPACOS.fim
+      )
+        break;
+    }
+
+    solucao.aptidao =
+      config.posicaoFinal[0] -
+      posicaoAtual[0] +
+      (config.posicaoFinal[1] - posicaoAtual[1]);
+    return solucao;
+  };
+
+  /**
+   * - Valor base da aptidão é definido pela distancia até a saida.
+   * - Movimentos "impossiveis" fazem a solução parar.
+   * - A quantidade de comandos que faltaram ser executados é somada a apitidão
+   * (Para descartar soluções que "dão problema cedo")
+   *
+   * @param {Solucao} solucao
+   */
+  const calculaAptidaoRefinado = (solucao: Solucao): Solucao => {
+    let posicaoAtual = config.posicaoInicial;
+
+    for (let i = 0; i < solucao.comandos.length; i++) {
+      const novaPosicao = labirinto.caminhar(posicaoAtual, solucao.comandos[i]);
+
+      if (
+        novaPosicao[0] === posicaoAtual[0] &&
+        novaPosicao[1] === posicaoAtual[1]
+      ) {
+      }
       if (
         labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
         Labirinto.ESPACOS.fim
@@ -155,7 +188,10 @@ const GeneticoProvider = (props) => {
    *
    */
   const atribuiAptidao = () => {
-    populacao.map((solucao) => calculaAptidao(solucao));
+    populacao.map((solucao) => {
+      if (config.funcAptidao === 0) return calculaAptidao(solucao);
+      else return calculaAptidaoRefinado(solucao);
+    });
   };
 
   /**

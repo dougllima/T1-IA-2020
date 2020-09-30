@@ -4,9 +4,10 @@ export type GeneticoConfig = {
   tamPopulacao: number;
 
   taxaMutacao: number;
-  tamMutacoes: number;
   qntMutacoes: number;
+  tamMutacoes: number;
 
+  funcAptidao: 0 | 1;
   pontosDeCorte: number;
 
   posicaoFinal: number[];

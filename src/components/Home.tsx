@@ -1,9 +1,10 @@
 import { Container, Grid, makeStyles, Paper } from "@material-ui/core";
 import React, { useContext } from "react";
 import { GeneticoContext } from "../logic/GeneticoContext";
-import ConfigGen from "./ConfigGenetico";
+import Config from "./Config";
+import ConfigGenetico from "./ConfigGenetico";
 import Matriz from "./Matriz";
-import SolucoesGen from "./SolucoesGen";
+import SolucoesGenetico from "./SolucoesGenetico";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,12 +43,12 @@ export default function Home() {
           </Grid>
           <Grid item xs={6}>
             <Paper className={classes.paper}>
-              <SolucoesGen />
+              <SolucoesGenetico />
             </Paper>
           </Grid>
           <Grid item xs={2}>
             <Paper className={classes.paper}>
-              <ConfigGen />
+              <Config />
             </Paper>
           </Grid>
         </Grid>

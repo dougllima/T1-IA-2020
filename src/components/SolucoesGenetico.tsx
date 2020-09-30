@@ -21,7 +21,7 @@ const useStyle = makeStyles((theme) => ({
   }
 }));
 
-export default function SolucoesGen() {
+export default function SolucoesGenetico() {
   const classes = useStyle();
   const { resultado, config } = useContext(GeneticoContext);
   const [idxGeracao, setidxGeracao] = useState(config.tamGeracoes);

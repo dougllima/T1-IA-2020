@@ -23,10 +23,10 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-export default function ConfigGen() {
+export default function ConfigGenetico() {
   const classes = useStyle();
 
-  const { config, setConfig, running, run } = useContext(GeneticoContext);
+  const { config, setConfig, running } = useContext(GeneticoContext);
   const [configAtual, setConfigAtual] = useState<GeneticoConfig>(config);
 
   const salvarConfigs = () => {
@@ -128,15 +128,6 @@ export default function ConfigGen() {
           disabled={Boolean(running)}
         >
           Salvar Configurações
-        </Button>
-
-        <Button
-          className={classes.button}
-          variant="outlined"
-          onClick={run}
-          disabled={Boolean(running)}
-        >
-          Executar 
         </Button>
       </div>
     </div>
