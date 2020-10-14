@@ -20,7 +20,7 @@ const DEFAULT_CONFIG: GeneticoConfig = {
   tamSolucao: 120,
   tamGeracoes: 50,
   tamPopulacao: 50,
-  
+
   taxaMutacao: 2,
   qntMutacoes: 5,
   tamMutacoes: 20,
@@ -115,12 +115,6 @@ const GeneticoProvider = (props) => {
       } while (geracaoAtual < config.tamGeracoes);
       setResultado((res) => geracoes);
       running = false;
-      console.log(
-        geracoes.map(
-          (value: Solucao[], index) =>
-            value.map((e) => e.aptidao) + " - " + index
-        )
-      );
     }
   };
 
@@ -131,16 +125,28 @@ const GeneticoProvider = (props) => {
    *
    * @param {Solucao} solucao
    */
-  const calculaAptidao = (solucao: Solucao): Solucao => {
+  const calculaAptidaoSimples = (solucao: Solucao): Solucao => {
     let posicaoAtual = config.posicaoInicial;
 
     for (let i = 0; i < solucao.comandos.length; i++) {
-      posicaoAtual = labirinto.caminhar(posicaoAtual, solucao.comandos[i]);
       if (
         labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
         Labirinto.ESPACOS.fim
-      )
+      ) {
+        solucao.idxComandosFinal = i;
         break;
+      }
+
+      const novaPosicao = labirinto.caminhar(posicaoAtual, solucao.comandos[i]);
+
+      if (
+        novaPosicao[0] === posicaoAtual[0] &&
+        novaPosicao[1] === posicaoAtual[1]
+      ) {
+        solucao.idxComandosFalhos.push(i);
+      }
+
+      posicaoAtual = novaPosicao;
     }
 
     solucao.aptidao =
@@ -158,29 +164,90 @@ const GeneticoProvider = (props) => {
    *
    * @param {Solucao} solucao
    */
-  const calculaAptidaoRefinado = (solucao: Solucao): Solucao => {
+  const calculaAptidaoIntermediario = (solucao: Solucao): Solucao => {
     let posicaoAtual = config.posicaoInicial;
+    let aptidaoAtual = 0;
 
     for (let i = 0; i < solucao.comandos.length; i++) {
+      if (
+        labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
+        Labirinto.ESPACOS.fim
+      ) {
+        solucao.idxComandosFinal = i;
+        break;
+      }
+
       const novaPosicao = labirinto.caminhar(posicaoAtual, solucao.comandos[i]);
 
       if (
         novaPosicao[0] === posicaoAtual[0] &&
         novaPosicao[1] === posicaoAtual[1]
       ) {
-      }
-      if (
-        labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
-        Labirinto.ESPACOS.fim
-      )
+        solucao.idxComandosFalhos.push(i);
+        aptidaoAtual += solucao.comandos.length - i;
         break;
+      }
+
+      posicaoAtual = novaPosicao;
     }
 
     solucao.aptidao =
-      config.posicaoFinal[0] -
-      posicaoAtual[0] +
+      aptidaoAtual +
+      (config.posicaoFinal[0] - posicaoAtual[0]) +
       (config.posicaoFinal[1] - posicaoAtual[1]);
     return solucao;
+  };
+
+  /**
+   * - Valor base da aptidão é definido pela distancia até a saida.
+   * - Movimentos "impossiveis" soma um valor X na aptidão.
+   * - Esse valor é a quantidade de comandos que ainda não foram executados nessa solução.
+   * - Quando a solução acha a saida, subitrai da apitidão a quantidade de comandos não utilizados.
+   * (Para descartar soluções que "dão problema cedo")
+   *
+   * @param {Solucao} solucao
+   */
+  const calculaAptidaoRefinado = (solucao: Solucao): Solucao => {
+    let posicaoAtual = config.posicaoInicial;
+    let aptidaoAtual = 0;
+
+    for (let i = 0; i < solucao.comandos.length; i++) {
+      if (
+        labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
+        Labirinto.ESPACOS.fim
+      ) {
+        solucao.idxComandosFinal = i;
+        aptidaoAtual -= solucao.comandos.length - i;
+        break;
+      }
+
+      const novaPosicao = labirinto.caminhar(posicaoAtual, solucao.comandos[i]);
+
+      if (
+        novaPosicao[0] === posicaoAtual[0] &&
+        novaPosicao[1] === posicaoAtual[1]
+      ) {
+        solucao.idxComandosFalhos.push(i);
+        aptidaoAtual += solucao.comandos.length - i;
+      }
+
+      posicaoAtual = novaPosicao;
+    }
+
+    solucao.aptidao =
+      aptidaoAtual +
+      (config.posicaoFinal[0] - posicaoAtual[0]) +
+      (config.posicaoFinal[1] - posicaoAtual[1]);
+    return solucao;
+  };
+
+  const calculaAptidao = (solucao: Solucao): Solucao => {
+    solucao.idxComandosFalhos = [];
+    solucao.idxComandosFinal = -1;
+
+    if (config.funcAptidao === 0) return calculaAptidaoSimples(solucao);
+    if (config.funcAptidao === 1) return calculaAptidaoIntermediario(solucao);
+    else return calculaAptidaoRefinado(solucao);
   };
 
   /**
@@ -189,8 +256,7 @@ const GeneticoProvider = (props) => {
    */
   const atribuiAptidao = () => {
     populacao.map((solucao) => {
-      if (config.funcAptidao === 0) return calculaAptidao(solucao);
-      else return calculaAptidaoRefinado(solucao);
+      return calculaAptidao(solucao);
     });
   };
 
@@ -257,30 +323,58 @@ const GeneticoProvider = (props) => {
           }
         }
       }
+      calculaAptidao(populacaoIntermediaria[i]);
     }
   };
 
   /**
-   * Muta um comando aleatório de uma solução aleatória da população intermediaria.
+   * Muta a população focando os campos inválidos.
    *
    * @memberof AlgGenProvider
    */
   const mutacao = () => {
+    const solucoesMutadas: number[] = [];
     for (let j = 0; j < config.qntMutacoes; j++) {
-      const idxSolucao = getRandomInt(1, config.tamPopulacao - 1);
+      let idxSolucao = 0;
+      do {
+        idxSolucao = getRandomInt(1, config.tamPopulacao - 1);
+      } while (solucoesMutadas.includes(idxSolucao));
 
-      for (let i = 0; i < config.tamMutacoes; i++) {
-        const idxMutacao = getRandomInt(0, config.tamSolucao);
+      solucoesMutadas.push(idxSolucao);
 
-        const comandoAtual =
-          populacaoIntermediaria[idxSolucao].comandos[idxMutacao];
-        let comandoNovo = "";
+      const mutacoesControladas = [
+        ...populacaoIntermediaria[idxSolucao].idxComandosFalhos,
+      ];
 
-        do {
-          comandoNovo = Solucao.COMANDOS[getRandomInt(0, 3)];
-        } while (comandoAtual === comandoNovo);
+      const mutacoesAleatorias =
+        config.tamMutacoes - mutacoesControladas.length;
 
-        populacaoIntermediaria[idxSolucao].comandos[idxMutacao] = comandoNovo;
+      for (let i = 0; i < mutacoesControladas.length; i++) {
+        const idxMutacao = mutacoesControladas[i];
+
+        // Mutação especifica demais
+        // Remove o comando "Inválido".
+        populacaoIntermediaria[idxSolucao].comandos.splice(idxMutacao, 1);
+
+        // Adiciona um comando aleatório ao fim da solução.
+        populacaoIntermediaria[idxSolucao].comandos.push(
+          Solucao.COMANDOS[getRandomInt(0, 3)]
+        );
+      }
+
+      if (mutacoesAleatorias > 0) {
+        for (let i = 0; i < mutacoesAleatorias; i++) {
+          const idxMutacao = getRandomInt(0, config.tamSolucao);
+
+          // Mutação especifica demais
+          // Remove o comando "Inválido".
+          populacaoIntermediaria[idxSolucao].comandos.splice(idxMutacao, 1);
+
+          // Adiciona um comando aleatório ao fim da solução.
+          populacaoIntermediaria[idxSolucao].comandos.push(
+            Solucao.COMANDOS[getRandomInt(0, 3)]
+          );
+        }
       }
     }
   };

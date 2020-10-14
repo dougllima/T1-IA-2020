@@ -4,31 +4,32 @@ export default class Labirinto {
     fim: "S",
 
     parede: "1",
-    piso: "0"
+    piso: "0",
   };
 
   labirinto: string[][] = [];
 
   constructor(labirinto?: string[][]) {
-    if (labirinto) this.labirinto = labirinto;
+    if (labirinto) {
+      this.labirinto = labirinto;
+    }
   }
 
   caminhar = (posicao: number[], comando: string) => {
-    let xNovo = posicao[0],
-      yNovo = posicao[1];
+    let [xNovo, yNovo] = posicao;
 
     switch (comando) {
       case "U":
-        yNovo = yNovo - 1;
-        break;
-      case "D":
-        yNovo = yNovo + 1;
-        break;
-      case "L":
         xNovo = xNovo - 1;
         break;
-      case "R":
+      case "D":
         xNovo = xNovo + 1;
+        break;
+      case "L":
+        yNovo = yNovo - 1;
+        break;
+      case "R":
+        yNovo = yNovo + 1;
         break;
     }
 

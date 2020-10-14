@@ -2,7 +2,6 @@ import { Container, Grid, makeStyles, Paper } from "@material-ui/core";
 import React, { useContext } from "react";
 import { GeneticoContext } from "../logic/GeneticoContext";
 import Config from "./Config";
-import ConfigGenetico from "./ConfigGenetico";
 import Matriz from "./Matriz";
 import SolucoesGenetico from "./SolucoesGenetico";
 

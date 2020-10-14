@@ -10,21 +10,31 @@ import {
   TableRow,
   Typography,
 } from "@material-ui/core";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { GeneticoContext } from "../logic/GeneticoContext";
 import Solucao from "../Models/Solucao";
 
 const useStyle = makeStyles((theme) => ({
   table: {
     maxHeight: "580px",
-    overflow: 'auto'
-  }
+    overflow: "auto",
+  },
+  teste: {
+    color: "red",
+  },
+  teste2: {
+    color: "green",
+  },
 }));
 
 export default function SolucoesGenetico() {
   const classes = useStyle();
   const { resultado, config } = useContext(GeneticoContext);
   const [idxGeracao, setidxGeracao] = useState(config.tamGeracoes);
+
+  useEffect(() => {
+    setidxGeracao(config.tamGeracoes);
+  }, [config.tamGeracoes]);
 
   const handleSlider = (event, number) => {
     setidxGeracao(number);
@@ -57,17 +67,33 @@ export default function SolucoesGenetico() {
         <TableContainer component={Paper} className={classes.table}>
           <Table size="small">
             <TableHead>
-              <TableCell>Index</TableCell>
-              <TableCell>Aptidão</TableCell>
-              <TableCell>Solução</TableCell>
+              <TableRow>
+                <TableCell>Index</TableCell>
+                <TableCell>Aptidão</TableCell>
+                <TableCell>Solução</TableCell>
+              </TableRow>
             </TableHead>
             <TableBody>
-              {geracao.length &&
+              {geracao?.length &&
                 geracao.map((row, index) => (
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{row.aptidao}</TableCell>
-                    <TableCell>{row.comandos}</TableCell>
+                    <TableCell>
+                      {row.comandos.map((e, i) => (
+                        <span
+                          className={
+                            row.idxComandosFinal === i
+                              ? classes.teste2
+                              : row.idxComandosFalhos.includes(i)
+                              ? classes.teste
+                              : ""
+                          }
+                        >
+                          {e}
+                        </span>
+                      ))}
+                    </TableCell>
                   </TableRow>
                 ))}
             </TableBody>

@@ -1,4 +1,4 @@
-import { Button, Divider, makeStyles } from "@material-ui/core";
+import { Button, makeStyles } from "@material-ui/core";
 import React, { useContext } from "react";
 import { GeneticoContext } from "../logic/GeneticoContext";
 import ConfigGenetico from "./ConfigGenetico";
