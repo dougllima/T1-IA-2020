@@ -2,7 +2,7 @@ import { Container, Grid, makeStyles, Paper } from "@material-ui/core";
 import React, { useContext } from "react";
 import { GeneticoContext } from "../logic/GeneticoContext";
 import Config from "./Config";
-import Matriz from "./Matriz";
+import LabirintoComponent from "./LabirintoComponent";
 import SolucoesGenetico from "./SolucoesGenetico";
 
 const useStyles = makeStyles((theme) => ({
@@ -37,7 +37,7 @@ export default function Home() {
         <Grid container spacing={1}>
           <Grid item xs={4}>
             <Paper className={classes.paper}>
-              <Matriz matriz={labirinto?.labirinto} />
+              <LabirintoComponent matriz={labirinto?.labirinto} />
             </Paper>
           </Grid>
           <Grid item xs={6}>

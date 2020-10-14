@@ -25,15 +25,15 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-export default function Matriz({ matriz }: props) {
+export default function LabirintoComponent({ matriz }: props) {
   const classes = useStyle();
   const fileReader = new FileReader();
   const { setLabirinto } = useContext(GeneticoContext);
 
-  const renderCelula = (celula: string) => {
+  const renderCelula = (celula: string, i: number, j: number) => {
     switch (celula) {
       case Labirinto.ESPACOS.parede:
-        return <StopIcon className={classes.icons} />;
+        return <StopIcon className={classes.icons}  />;
       case Labirinto.ESPACOS.piso:
         return <CropSquareIcon className={clsx(classes.piso, classes.icons)} />;
       case Labirinto.ESPACOS.inicio:
@@ -55,7 +55,9 @@ export default function Matriz({ matriz }: props) {
   const handleFileRead = () => {
     if (fileReader.result) {
       const file: string = fileReader.result?.toString();
-      setLabirinto(new Labirinto(file.split("\r\n").map(linha => linha.split(" "))))
+      setLabirinto(
+        new Labirinto(file.split("\r\n").map((linha) => linha.split(" ")))
+      );
     }
   };
 
@@ -72,11 +74,11 @@ export default function Matriz({ matriz }: props) {
         />
       </Button>
 
-      {matriz?.map((linha: string[]) => {
+      {matriz?.map((linha: string[], j: number) => {
         return (
           <Grid container spacing={0}>
-            {linha.map((celula: string) => {
-              return <Grid item>{renderCelula(celula)}</Grid>;
+            {linha.map((celula: string, i: number) => {
+              return <Grid item title={`{${i},${j}}`}>{renderCelula(celula, i, j)}</Grid>;
             })}
             <br />
           </Grid>

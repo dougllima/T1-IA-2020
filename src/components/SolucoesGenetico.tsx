@@ -46,11 +46,13 @@ export default function SolucoesGenetico() {
 
   const renderConfigs = () => (
     <>
+    <Typography>Exibir Movimentos Inválidos</Typography>
       <Switch
         value=""
         checked={Boolean(exibeInvalidos)}
         onChange={() => setExibeInvalidos(valor => !valor)}
         inputProps={{ "aria-label": "" }}
+        color="primary"
       />
     </>
   );

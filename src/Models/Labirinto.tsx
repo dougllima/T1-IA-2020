@@ -16,30 +16,30 @@ export default class Labirinto {
   }
 
   caminhar = (posicao: number[], comando: string) => {
-    let [xNovo, yNovo] = posicao;
+    let [yNovo, xNovo] = posicao;
 
     switch (comando) {
       case "U":
-        xNovo = xNovo - 1;
-        break;
-      case "D":
-        xNovo = xNovo + 1;
-        break;
-      case "L":
         yNovo = yNovo - 1;
         break;
-      case "R":
+      case "D":
         yNovo = yNovo + 1;
+        break;
+      case "L":
+        xNovo = xNovo - 1;
+        break;
+      case "R":
+        xNovo = xNovo + 1;
         break;
     }
 
     // Se a nova posição for inválida, desfaz o movimento
-    if (!this.validaPosicao(xNovo, yNovo)) {
-      xNovo = posicao[0];
-      yNovo = posicao[1];
+    if (!this.validaPosicao(yNovo, xNovo)) {
+      yNovo = posicao[0];
+      xNovo = posicao[1];
     }
 
-    return [xNovo, yNovo];
+    return [yNovo, xNovo];
   };
 
   validaPosicao = (x: number, y: number): Boolean => {
