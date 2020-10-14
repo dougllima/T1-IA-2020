@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import clsx from "clsx";
-import { Grid, makeStyles, Typography } from "@material-ui/core";
+import { Button, Grid, makeStyles, Typography } from "@material-ui/core";
 import StopIcon from "@material-ui/icons/Stop";
 import CropSquareIcon from "@material-ui/icons/CropSquare";
 import DirectionsRunIcon from "@material-ui/icons/DirectionsRun";
 import HomeIcon from "@material-ui/icons/Home";
 import Labirinto from "../Models/Labirinto";
+import { GeneticoContext } from "../logic/GeneticoContext";
 
 type props = { matriz?: string[][] };
 
@@ -14,7 +15,7 @@ const useStyle = makeStyles((theme) => ({
     [theme.breakpoints.up("xs")]: {
       fontSize: "x-large",
     },
-    
+
     [theme.breakpoints.up("lg")]: {
       fontSize: "xxx-large",
     },
@@ -26,6 +27,8 @@ const useStyle = makeStyles((theme) => ({
 
 export default function Matriz({ matriz }: props) {
   const classes = useStyle();
+  const fileReader = new FileReader();
+  const { setLabirinto } = useContext(GeneticoContext);
 
   const renderCelula = (celula: string) => {
     switch (celula) {
@@ -42,9 +45,33 @@ export default function Matriz({ matriz }: props) {
     }
   };
 
+  const handleFileChange = (event) => {
+    if (event?.target?.files[0]) {
+      fileReader.onloadend = handleFileRead;
+      fileReader.readAsText(event.target.files[0]);
+    }
+  };
+
+  const handleFileRead = () => {
+    if (fileReader.result) {
+      const file: string = fileReader.result?.toString();
+      setLabirinto(new Labirinto(file.split("\r\n").map(linha => linha.split(" "))))
+    }
+  };
+
   return (
     <>
       <Typography variant="h6">Labirinto</Typography>
+
+      <Button variant="contained" component="label">
+        Alterar Labirinto
+        <input
+          type="file"
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+        />
+      </Button>
+
       {matriz?.map((linha: string[]) => {
         return (
           <Grid container spacing={0}>

@@ -9,6 +9,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Switch,
 } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
 import { GeneticoContext } from "../logic/GeneticoContext";
@@ -19,10 +20,10 @@ const useStyle = makeStyles((theme) => ({
     maxHeight: "580px",
     overflow: "auto",
   },
-  teste: {
+  comandoInvalido: {
     color: "red",
   },
-  teste2: {
+  comandoFinal: {
     color: "green",
   },
 }));
@@ -31,6 +32,7 @@ export default function SolucoesGenetico() {
   const classes = useStyle();
   const { resultado, config } = useContext(GeneticoContext);
   const [idxGeracao, setidxGeracao] = useState(config.tamGeracoes);
+  const [exibeInvalidos, setExibeInvalidos] = useState(true);
 
   useEffect(() => {
     setidxGeracao(config.tamGeracoes);
@@ -41,6 +43,17 @@ export default function SolucoesGenetico() {
   };
 
   const existeGeracao = () => resultado && resultado.length > 0 && resultado[0];
+
+  const renderConfigs = () => (
+    <>
+      <Switch
+        value=""
+        checked={Boolean(exibeInvalidos)}
+        onChange={() => setExibeInvalidos(valor => !valor)}
+        inputProps={{ "aria-label": "" }}
+      />
+    </>
+  );
 
   const renderSlider = () => (
     <>
@@ -80,19 +93,32 @@ export default function SolucoesGenetico() {
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{row.aptidao}</TableCell>
                     <TableCell>
-                      {row.comandos.map((e, i) => (
-                        <span
-                          className={
-                            row.idxComandosFinal === i
-                              ? classes.teste2
-                              : row.idxComandosFalhos.includes(i)
-                              ? classes.teste
-                              : ""
-                          }
-                        >
-                          {e}
-                        </span>
-                      ))}
+                      {exibeInvalidos
+                        ? row.comandos.map((e, i) => (
+                            <span
+                              className={
+                                row.idxComandosFinal === i
+                                  ? classes.comandoFinal
+                                  : row.idxComandosFalhos.includes(i)
+                                  ? classes.comandoInvalido
+                                  : ""
+                              }
+                            >
+                              {e}
+                            </span>
+                          ))
+                        : row.comandos.map((e, i) => (
+                          row.idxComandosFalhos.includes(i) ? "" :
+                            <span
+                              className={
+                                row.idxComandosFinal === i
+                                  ? classes.comandoFinal
+                                  : ""
+                              }
+                            >
+                              {e}
+                            </span>
+                          ))}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -107,6 +133,7 @@ export default function SolucoesGenetico() {
     <>
       <Typography variant="h6">Gerações</Typography>
       {existeGeracao() && renderSlider()}
+      {existeGeracao() && renderConfigs()}
       {existeGeracao() && renderGeracao()}
     </>
   );
