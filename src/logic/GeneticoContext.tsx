@@ -361,15 +361,9 @@ const GeneticoProvider = (props) => {
       if (mutacoesAleatorias > 0) {
         for (let i = 0; i < mutacoesAleatorias; i++) {
           const idxMutacao = getRandomInt(0, config.tamSolucao);
-
-          // Mutação especifica demais
-          // Remove o comando "Inválido".
-          populacaoIntermediaria[idxSolucao].comandos.splice(idxMutacao, 1);
-
-          // Adiciona um comando aleatório ao fim da solução.
-          populacaoIntermediaria[idxSolucao].comandos.push(
-            Solucao.COMANDOS[getRandomInt(0, 3)]
-          );
+        
+          populacaoIntermediaria[idxSolucao].comandos[idxMutacao] =
+            Solucao.COMANDOS[getRandomInt(0, 3)];
         }
       }
     }
