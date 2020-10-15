@@ -5,7 +5,7 @@ export default class Solucao {
 
   comandos: string[];
   idxComandosFalhos: number [];
-  idxComandosFinal: number = -1;
+  idxComandoFinal: number = -1;
   aptidao: number = Infinity;
 
   constructor(tamanhoSolucao: number = 120, randomizar: Boolean = false) {

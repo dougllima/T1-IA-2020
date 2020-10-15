@@ -46,11 +46,11 @@ export default function SolucoesGenetico() {
 
   const renderConfigs = () => (
     <>
-    <Typography>Exibir Movimentos Inválidos</Typography>
+      <Typography>Exibir Movimentos Inválidos</Typography>
       <Switch
         value=""
         checked={Boolean(exibeInvalidos)}
-        onChange={() => setExibeInvalidos(valor => !valor)}
+        onChange={() => setExibeInvalidos((valor) => !valor)}
         inputProps={{ "aria-label": "" }}
         color="primary"
       />
@@ -74,6 +74,45 @@ export default function SolucoesGenetico() {
     </>
   );
 
+  const renderSolucao = (solucao: Solucao) => {
+    return solucao.comandos.map((comando, index) => {
+      if (solucao.idxComandoFinal > -1) {
+        if (index <= solucao.idxComandoFinal) {
+          return renderComando(solucao, index, comando);
+        }
+        return "";
+      }
+      return renderComando(solucao, index, comando);
+    });
+  };
+
+  const renderComando = (solucao, index, comando) =>
+    solucao.idxComandosFalhos.includes(index) ? (
+      exibeInvalidos && (
+        <span
+          key={index}
+          className={
+            solucao.idxComandoFinal === index
+              ? classes.comandoFinal
+              : solucao.idxComandosFalhos.includes(index)
+              ? classes.comandoInvalido
+              : ""
+          }
+        >
+          {comando}
+        </span>
+      )
+    ) : (
+      <span
+        key={index}
+        className={
+          solucao.idxComandoFinal === index ? classes.comandoFinal : ""
+        }
+      >
+        {comando}
+      </span>
+    );
+
   const renderGeracao = () => {
     const geracao: Solucao[] = resultado[idxGeracao - 1];
 
@@ -94,34 +133,7 @@ export default function SolucoesGenetico() {
                   <TableRow key={index}>
                     <TableCell>{index + 1}</TableCell>
                     <TableCell>{row.aptidao}</TableCell>
-                    <TableCell>
-                      {exibeInvalidos
-                        ? row.comandos.map((e, i) => (
-                            <span
-                              className={
-                                row.idxComandosFinal === i
-                                  ? classes.comandoFinal
-                                  : row.idxComandosFalhos.includes(i)
-                                  ? classes.comandoInvalido
-                                  : ""
-                              }
-                            >
-                              {e}
-                            </span>
-                          ))
-                        : row.comandos.map((e, i) => (
-                          row.idxComandosFalhos.includes(i) ? "" :
-                            <span
-                              className={
-                                row.idxComandosFinal === i
-                                  ? classes.comandoFinal
-                                  : ""
-                              }
-                            >
-                              {e}
-                            </span>
-                          ))}
-                    </TableCell>
+                    <TableCell>{renderSolucao(row)}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>

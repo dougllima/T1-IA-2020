@@ -129,7 +129,7 @@ const GeneticoProvider = (props) => {
         labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
         Labirinto.ESPACOS.fim
       ) {
-        solucao.idxComandosFinal = i;
+        solucao.idxComandoFinal = i;
         break;
       }
 
@@ -169,7 +169,7 @@ const GeneticoProvider = (props) => {
         labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
         Labirinto.ESPACOS.fim
       ) {
-        solucao.idxComandosFinal = i;
+        solucao.idxComandoFinal = i;
         break;
       }
 
@@ -212,7 +212,7 @@ const GeneticoProvider = (props) => {
         labirinto.labirinto[posicaoAtual[0]][posicaoAtual[1]] ===
         Labirinto.ESPACOS.fim
       ) {
-        solucao.idxComandosFinal = i;
+        solucao.idxComandoFinal = i;
         aptidaoAtual -= solucao.comandos.length - i;
         break;
       }
@@ -239,7 +239,7 @@ const GeneticoProvider = (props) => {
 
   const calculaAptidao = (solucao: Solucao): Solucao => {
     solucao.idxComandosFalhos = [];
-    solucao.idxComandosFinal = -1;
+    solucao.idxComandoFinal = -1;
 
     if (config.funcAptidao === 0) return calculaAptidaoSimples(solucao);
     if (config.funcAptidao === 1) return calculaAptidaoIntermediario(solucao);
