@@ -6,7 +6,7 @@ import CropSquareIcon from "@material-ui/icons/CropSquare";
 import DirectionsRunIcon from "@material-ui/icons/DirectionsRun";
 import HomeIcon from "@material-ui/icons/Home";
 import Labirinto from "../Models/Labirinto";
-import { GeneticoContext } from "../logic/GeneticoContext";
+import { LabirintoContext } from "../logic/LabirintoContext";
 
 type props = { matriz?: string[][] };
 
@@ -28,7 +28,7 @@ const useStyle = makeStyles((theme) => ({
 export default function LabirintoComponent({ matriz }: props) {
   const classes = useStyle();
   const fileReader = new FileReader();
-  const { setLabirinto } = useContext(GeneticoContext);
+  const { setLabirinto } = useContext(LabirintoContext);
 
   const renderCelula = (celula: string, i: number, j: number) => {
     switch (celula) {

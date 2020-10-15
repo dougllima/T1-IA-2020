@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Labirinto from "../Models/Labirinto";
 import Solucao from "../Models/Solucao";
 import { getRandomInt } from "./Util";
-import labTeste from "../tests/labTeste1.json";
 import { GeneticoConfig } from "../Models/Configs";
+import { LabirintoContext } from "./LabirintoContext";
 
 type ContextValue = {
   run?;
@@ -11,9 +11,7 @@ type ContextValue = {
   running?: Boolean;
   resultado?;
   populacao?: Solucao[];
-  labirinto?: Labirinto;
   setConfig?;
-  setLabirinto?;
 };
 
 const DEFAULT_CONFIG: GeneticoConfig = {
@@ -39,9 +37,7 @@ const GeneticoContext = React.createContext<ContextValue>({
 
 const GeneticoProvider = (props) => {
   const [config, setConfig] = useState<GeneticoConfig>(DEFAULT_CONFIG);
-  const [labirinto, setLabirinto] = useState<Labirinto>(
-    new Labirinto(labTeste)
-  );
+  const { labirinto } = useContext(LabirintoContext);
   const [resultado, setResultado] = useState<any[]>([]);
 
   let running = false;
@@ -387,8 +383,6 @@ const GeneticoProvider = (props) => {
         resultado,
         setConfig,
         populacao,
-        setLabirinto,
-        labirinto,
       }}
     >
       {props.children}
